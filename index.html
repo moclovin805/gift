@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Love - A Digital Gift</title>
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="A personalized digital love letter and experience for my wonderful girlfriend.">
+    <!-- Open Graph Tags (for social sharing) -->
+    <meta property="og:title" content="My Love">
+    <meta property="og:description" content="A personalized digital gift celebrating our love.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/images/og-image.jpg">
+    <meta property="og:url" content="https://yourusername.github.io/for-my-love/">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Great+Vibes&family=Lora:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="assets/icons/favicon.png">
+</head>
+<body>
+
+    <!-- Ambient Particles -->
+    <div id="particle-container"></div>
+
+    <!-- Controls -->
+    <div class="site-controls">
+        <button id="dark-mode-toggle" aria-label="Toggle Dark Mode">🌓</button>
+        <button id="music-toggle" aria-label="Toggle Music">🔇</button>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="scroll-progress" id="scroll-progress"></div>
+
+    <!-- Loading Screen -->
+    <section id="loading-screen" class="active">
+        <div class="loading-content">
+            <h1 class="elegant-script text-cream">to jana...</h1>
+            <div class="loading-animation"></div>
+        </div>
+    </section>
+
+    <!-- Page 1: Envelope -->
+    <section id="page-1" class="page center-content parallax-bg">
+        <div class="card envelope-container hover-shadow">
+            <!-- Your custom JPEG envelope -->
+            <img src="assets/images/my-envelope.jpeg" alt="Envelope" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px; border: 2px solid var(--color-gold);">
+        </div>
+        <!-- Background music file. Place in assets/music/ -->
+        <audio id="bg-music" src="" loop></audio>
+    </section>
+
+    <!-- Page 2: Love Letter -->
+    <section id="page-2" class="page center-content container">
+        <div class="letter-paper hover-shadow typewriter-effect">
+            <p class="elegant-script text-burgundy dear-message"></p>
+            <p class="body-text text-burgundy main-letter-body"></p>
+            <button class="btn btn-primary next-page mt-40" onclick="navigateToPage(3)">Continue</button>
+        </div>
+    </section>
+
+    <!-- Page 3: Film Reel Gallery -->
+    <section id="page-3" class="page gallery-section">
+        <div class="container mt-40 mb-40">
+            <!-- Custom Typography Banner -->
+            <div class="gallery-header header-banner">
+                <span class="gallery-num">09</span>
+                <div class="title-main">
+                    <span class="script-y">l</span>
+                    <div class="title-words">
+                        <div>ove you <span class="text-burgundy italic">my</span></div>
+                        <div>pretty <span class="text-burgundy">princess</span> </div>
+                    </div>
+                </div>
+                <span class="gallery-num">02</span>
+            </div>
+        </div>
+        
+        <div class="film-strip-container">
+            <div class="film-scroll" id="film-scroll">
+                <!-- JavaScript populates film frames here -->
+            </div>
+        </div>
+        
+        <div class="container text-center mt-40">
+            <p class="body-text text-cream mb-20" style="opacity: 0.7;">Swipe to roll the film</p>
+            <button class="btn btn-primary" onclick="navigateToPage(4)">continue ➔</button>
+        </div>
+    </section>
+
+    <!-- Photo Modal -->
+    <div id="photo-modal" class="modal">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modal-img">
+        <div id="modal-caption" class="body-text text-cream"></div>
+    </div>
+
+    <!-- Page 4: Polaroid Wall -->
+    <section id="page-4" class="page polaroid-section">
+        <div class="container text-center" style="height: 100%; display: flex; flex-direction: column; position: relative;">
+            <h2 class="elegant-title text-cream mb-40" style="position: relative; z-index: 100;">my favourite girl</h2>
+            
+            <div class="polaroid-wall" id="polaroid-wall">
+                <!-- JavaScript populates polaroids here -->
+            </div>
+            
+            <div style="text-align: center; margin-top: auto; padding-bottom: 40px; position: relative; z-index: 100;">
+                <button class="btn btn-primary mt-40" onclick="navigateToPage(5)">Next: Our Songs ➔</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Page 5: Songs -->
+    <section id="page-5" class="page songs-section">
+        <div class="container text-center">
+            <h2 class="elegant-title text-cream mb-40">Songs of You</h2>
+            <div class="songs-grid" id="songs-grid">
+                <!-- JavaScript populates song cards -->
+            </div>
+            <button class="btn btn-primary mt-40" onclick="navigateToPage(6)">Next: Countdown ➔</button>
+        </div>
+    </section>
+
+    <!-- Page 6: Anniversary Countdown -->
+    <section id="page-6" class="page countdown-section center-content">
+        <div class="container text-center">
+            
+            <!-- Section 1: Days Together -->
+            <div class="card hover-shadow mb-40" style="background: rgba(248, 244, 238, 0.95);">
+                <p class="elegant-title text-burgundy mb-20" style="font-size: 2rem;">Our Journey Together</p>
+                <p class="together-count">We have been together for <br><span id="together-days"></span> <br>days!</p>
+            </div>
+
+            <!-- Section 2: Countdown to Next Anniversary -->
+            <h2 class="elegant-title text-gold mb-20" id="countdown-title">Countdown to Our Next Anniversary</h2>
+            <div class="countdown-display card hover-shadow">
+                <div class="time-block">
+                    <span id="days" class="time-number elegant-script">00</span>
+                    <span class="time-label body-text">Days</span>
+                </div>
+                <div class="time-block">
+                    <span id="hours" class="time-number elegant-script">00</span>
+                    <span class="time-label body-text">Hours</span>
+                </div>
+                <div class="time-block">
+                    <span id="minutes" class="time-number elegant-script">00</span>
+                    <span class="time-label body-text">Minutes</span>
+                </div>
+                <div class="time-block">
+                    <span id="seconds" class="time-number elegant-script">00</span>
+                    <span class="time-label body-text">Seconds</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary mt-40" onclick="navigateToPage(7)">Next: Cherished Memories ➔</button>
+        </div>
+    </section>
+
+
+    <!-- Page 7: Favorite Memories -->
+    <section id="page-7" class="page memories-section">
+        <div class="container text-center">
+            <h2 class="elegant-title text-cream mb-40">Cherished Memories</h2>
+            <div class="memories-slider-container">
+                <div class="memories-slider" id="memories-slider">
+                    <!-- JavaScript populates memory cards -->
+                </div>
+                <button class="slider-arrow prev" id="slider-prev">&#10094;</button>
+                <button class="slider-arrow next" id="slider-next">&#10095;</button>
+            </div>
+            <button class="btn btn-primary mt-40" onclick="navigateToPage(8)">Next: Final Message ➔</button>
+        </div>
+    </section>
+
+    <!-- Page 8: Final Message -->
+    <section id="page-8" class="page final-message-section parallax-bg">
+        <div class="container text-center center-content">
+            <div class="final-card card hover-shadow">
+                <blockquote class="elegant-quote text-burgundy final-quote">"In a sea of people, my eyes will always search for you."</blockquote>
+                <button class="btn btn-primary mt-40" id="final-reveal">One More Thing</button>
+                <p class="body-text text-burgundy final-message mt-40 hidden">I love you more than words can say Thank you for being mine and always sticking by my side i hope i can always make you happy my beautifull baby you mean so much to me i cant imagine a life without your pretty eyes and perfect smile love youuu babyyyyy.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="hover-shadow" aria-label="Back to Top">↑</button>
+
+    <script src="script.js"></script>
+</body>
+</html>
