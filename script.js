@@ -76,7 +76,6 @@ function initParticles() {
     const isMobile = window.innerWidth <= 768;
     const particleCount = isMobile ? 10 : 25; 
     
-    // PERFORMANCE: Use DocumentFragment to batch DOM insertions
     const fragment = document.createDocumentFragment();
 
     for (let i = 0; i < particleCount; i++) {
@@ -114,7 +113,6 @@ function initControls() {
     const bttButton = $('#back-to-top');
     bttButton.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-    // PERFORMANCE: Throttle scroll events using requestAnimationFrame to prevent mobile jank
     let isScrolling = false;
     window.addEventListener('scroll', () => {
         if (!isScrolling) {
@@ -130,7 +128,7 @@ function initControls() {
             });
             isScrolling = true;
         }
-    }, { passive: true }); // Tells browser scroll won't be interrupted
+    }, { passive: true });
 }
 
 function toggleMusic() {
@@ -279,14 +277,14 @@ function triggerEnvelopeEruption() {
     container.classList.add('flower-container');
     document.body.appendChild(container);
 
-    // PERFORMANCE: Use DocumentFragment
     const fragment = document.createDocumentFragment();
 
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
     const isMobile = screenWidth <= 768;
 
-    const flowerCount = isMobile ? 150 : 600; 
+    // High count for a dense, opaque wall
+    const flowerCount = isMobile ? 200 : 600; 
     const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
 
     for(let i = 0; i < flowerCount; i++) {
@@ -301,11 +299,13 @@ function triggerEnvelopeEruption() {
         const delayFactor = 1 - (targetYRaw / screenHeight); 
         const delay = (Math.max(0, delayFactor * 1.5) + Math.random() * 0.2) + 's'; 
 
-        const s = isMobile ? (Math.random() * 0.8 + 0.5) : (Math.random() * 1.0 + 0.5); 
+        // Tighter scaling so they stay uniform and pack together tightly
+        const s = Math.random() * 0.5 + 0.8; 
         const r = (Math.random() * 720 - 360) + 'deg'; 
         const duration = (Math.random() * 0.6 + 0.5) + 's'; 
 
-        flower.style.width = isMobile ? '90px' : '200px'; 
+        // 75px for mobile ensures tight packing without giant overlapping images
+        flower.style.width = isMobile ? '75px' : '150px'; 
         
         flower.style.setProperty('--tx', tx);
         flower.style.setProperty('--ty', ty);
@@ -317,7 +317,6 @@ function triggerEnvelopeEruption() {
         fragment.appendChild(flower);
     }
     
-    // Inject all flowers at once to prevent layout thrashing
     container.appendChild(fragment);
 
     setTimeout(() => {
@@ -331,14 +330,14 @@ function triggerPageTransitionPour() {
     container.classList.add('flower-container');
     document.body.appendChild(container);
 
-    // PERFORMANCE: Use DocumentFragment
     const fragment = document.createDocumentFragment();
 
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
     const isMobile = screenWidth <= 768;
 
-    const flowerCount = isMobile ? 150 : 600; 
+    // High count for a dense, opaque wall
+    const flowerCount = isMobile ? 200 : 600; 
     const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
 
     for(let i = 0; i < flowerCount; i++) {
@@ -353,11 +352,13 @@ function triggerPageTransitionPour() {
         const delayFactor = 1 - (targetYRaw / screenHeight); 
         const delay = (Math.max(0, delayFactor * 1.0) + Math.random() * 0.15) + 's'; 
 
-        const s = isMobile ? (Math.random() * 0.8 + 0.5) : (Math.random() * 1.0 + 0.5); 
+        // Tighter scaling so they stay uniform and pack together tightly
+        const s = Math.random() * 0.5 + 0.8; 
         const r = (Math.random() * 720 - 360) + 'deg'; 
         const duration = (Math.random() * 0.5 + 0.4) + 's'; 
 
-        flower.style.width = isMobile ? '90px' : '200px'; 
+        // 75px for mobile ensures tight packing without giant overlapping images
+        flower.style.width = isMobile ? '75px' : '150px'; 
         
         flower.style.setProperty('--tx', tx);
         flower.style.setProperty('--ty', ty);
@@ -463,7 +464,6 @@ function populatePolaroids() {
     const wall = $('#polaroid-wall');
     const fragment = document.createDocumentFragment();
     
-    // Fallback bounds in case elements aren't fully painted yet
     let wallWidth = wall.offsetWidth || window.innerWidth;
     let wallHeight = wall.offsetHeight || window.innerHeight;
     
@@ -506,9 +506,8 @@ function makeDraggableAndFlippable(el) {
     let startX, startY, initialX, initialY;
     let wasDragged = false;
     
-    // PERFORMANCE: Passive true for listeners that don't need to block scrolling
     el.addEventListener('mousedown', dragStart);
-    el.addEventListener('touchstart', dragStart, {passive: false}); // Kept false as we might need preventDefault during drag
+    el.addEventListener('touchstart', dragStart, {passive: false}); 
     
     function dragStart(e) {
         if (e.target.closest('button')) return; 
@@ -538,7 +537,7 @@ function makeDraggableAndFlippable(el) {
     
     function drag(e) {
         if (!isDragging) return;
-        e.preventDefault(); // Prevents screen scroll while dragging a photo
+        e.preventDefault(); 
         
         let currentX, currentY;
         if (e.type === 'touchmove') {
@@ -698,7 +697,6 @@ function initSlider() {
     const slider = $('#memories-slider');
     let startX, moveX;
     
-    // PERFORMANCE: Passive listeners for slider touches so the page doesn't stutter 
     slider.addEventListener('touchstart', (e) => startX = e.touches[0].clientX, { passive: true });
     slider.addEventListener('touchmove', (e) => moveX = e.touches[0].clientX, { passive: true });
     slider.addEventListener('touchend', () => {
@@ -759,7 +757,6 @@ function triggerConfetti(targetSelector) {
     const confettiCount = 50;
     const container = $(targetSelector) || document.body;
     
-    // PERFORMANCE: Use DocumentFragment
     const fragment = document.createDocumentFragment();
     
     for (let i = 0; i < confettiCount; i++) {
