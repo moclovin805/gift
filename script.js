@@ -1,15 +1,10 @@
 // --- EASY CONFIGURATION ---
-// Change these details to personalize the website.
 const CONFIG = {
-    girlfriendName: 'jana', // Change this to her name
+    girlfriendName: 'jana', 
     yourName: 'Manik',
-    // format: YYYY-MM-DD
     anniversaryDate: '2025-7-17',
-    // URL to MP3 file (GitHub link, Dropbox public link, etc.)
     musicLink: 'assets/music/bgmusic.mp3',
 
-    // Film Reel Gallery
-    // Add images here { src: 'path/to/image', caption: 'Your caption' }
     galleryImages: [
         { src: 'assets/images/photo1.jpeg', caption: '' },
         { src: 'assets/images/photo2.jpeg', caption: '' },
@@ -19,7 +14,6 @@ const CONFIG = {
         { src: 'assets/images/photo6.jpeg', caption: '' }
     ],
 
-    // Polaroid Wall
     polaroids: [
         { src: 'assets/images/photo7.jpeg', note:'في قلبي مدينه كل سكانها انتي' },
         { src: 'assets/images/photo8.jpeg', note: 'الكل  مر  من جانبي الا انت مررت من خلالي' },
@@ -28,21 +22,18 @@ const CONFIG = {
         { src: 'assets/images/photo11.jpeg', note: 'يكفيني من الحب انك انت' }
     ],
 
-    // Songs That Remind Me of You
     songs: [
         { title: 'daisy lady', artist: 'Tir na nog', albumArt: 'assets/icons/daisy lady.jpeg', spotifyLink: 'https://open.spotify.com/track/3E6G7WqsnOh6rWanwcSO7w?si=c4837c7dc6ec43fd', youtubeLink: 'https://youtu.be/CwABFfdoWtQ?si=BBubnvpk-NWOOLP8' },
         { title: 'i love her', artist: 'the beatles', albumArt: 'assets/icons/iloveher.jpeg', spotifyLink: 'https://open.spotify.com/track/65vdMBskhx3akkG9vQlSH1?si=8f45159a2117481c', youtubeLink: 'https://youtu.be/5tc0gLSSU1M?si=Fc6vFR6hcM27wF4m' },
         { title: 'the Perfect pair ', artist: 'beabadoobee', albumArt: 'assets/icons/bebado.jpeg', spotifyLink: 'https://open.spotify.com/track/41P6Tnd8KIHqON0QIydx6a?si=78fd8338965b4435', youtubeLink: 'https://youtu.be/HwtEBQiuX-c?si=MZvtF1ChCaNZM0Zq' }
     ],
 
-    // Favorite Memories Slider
     favoriteMemories: [
         { src: 'assets/images/ph1.jpeg', story: '', date: '' },
         { src: 'assets/images/ph2.jpeg', story: '', date: '' },
         { src: 'assets/images/ph3.jpeg', story: '', date: '' }
     ],
 
-    // Text & Messages
     countdownTitle: 'Countdown to Our Special Day',
     finalQuote: '"In a sea of people, my eyes will always search for you."',
     finalMessageReveal: 'I love you more than words can say Thank you for being mine and always sticking by my side i hope i can always make you happy my beautifull baby you mean so much to me i cant imagine a life without your pretty eyes and perfect smile love youuu babyyyyy.'
@@ -63,7 +54,7 @@ const state = {
     memoriesPopulated: false
 };
 
-// Lazy Loading Intersection Observer
+// --- LAZY LOADING OBSERVER ---
 const lazyLoadObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -79,16 +70,11 @@ const lazyLoadObserver = new IntersectionObserver((entries, observer) => {
     });
 }, { rootMargin: '0px 0px 50px 0px' }); 
 
-
-
-
-// --- AMBIENT ELEMENTS (Particles & Effects) ---
+// --- AMBIENT ELEMENTS ---
 function initParticles() {
     const container = $('#particle-container');
-    // PERFORMANCE CHECK: Use fewer particles on mobile devices
     const isMobile = window.innerWidth <= 768;
     const particleCount = isMobile ? 10 : 25; 
-    const particles = [];
 
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
@@ -104,13 +90,8 @@ function initParticles() {
         particle.style.animationDelay = `-${Math.random() * 10}s`;
 
         container.appendChild(particle);
-        particles.push(particle);
     }
 }
-
-
-
-
 
 // --- SITE CONTROLS & UTILS ---
 function initControls() {
@@ -162,28 +143,73 @@ function updateScrollProgress() {
     $('#scroll-progress').style.width = percent + '%';
 }
 
-
-
-
-
-// --- LOADING & PAGE TRANSITIONS ---
+// --- HYBRID PRELOADER WITH TIME LOCK ---
 function initLoading() {
-    const loadingScreen = $('#loading-screen');
-    const firstPage = $('#page-1');
+    // Preload UI assets only
+    let assetsToLoad = [
+        'assets/images/my-envelope.jpeg',
+        'assets/images/flower1.png',
+        'assets/images/flower2.png',
+        'assets/images/flower3.png',
+        'assets/backgrounds/vintage-parchment.jpg',
+        'assets/backgrounds/paper-texture.png',
+        'assets/backgrounds/love-photo.jpg'
+    ];
 
+    let loadedCount = 0;
+    const totalAssets = assetsToLoad.length;
+    
+    let minTimePassed = false;
+    let assetsFinished = false;
+    let isLoaded = false;
+
+    function checkReadyToStart() {
+        if (minTimePassed && assetsFinished && !isLoaded) {
+            isLoaded = true;
+            const loadingScreen = $('#loading-screen');
+            const firstPage = $('#page-1');
+            
+            loadingScreen.classList.add('fade-out');
+            setTimeout(() => {
+                loadingScreen.classList.remove('active');
+                loadingScreen.style.display = 'none'; 
+                firstPage.classList.add('active', 'fade-in');
+                firstPage.style.display = 'flex'; 
+                state.currentPage = 1;
+            }, 800); 
+        }
+    }
+
+    // LOCK 1: Force loading screen to stay for 2.5s
     setTimeout(() => {
-        loadingScreen.classList.add('fade-out');
-        setTimeout(() => {
-            loadingScreen.classList.remove('active');
-            loadingScreen.style.display = 'none'; 
-            firstPage.classList.add('active', 'fade-in');
-            firstPage.style.display = 'flex'; 
-            state.currentPage = 1;
-        }, 800); 
-    }, 2000); 
+        minTimePassed = true;
+        checkReadyToStart();
+    }, 2500);
+
+    // LOCK 2: Ensure images are loaded
+    if (totalAssets === 0) {
+        assetsFinished = true;
+        checkReadyToStart();
+    } else {
+        assetsToLoad.forEach(src => {
+            const img = new Image();
+            img.src = src;
+            img.onload = () => { loadedCount++; if (loadedCount >= totalAssets) { assetsFinished = true; checkReadyToStart(); } };
+            img.onerror = () => { loadedCount++; if (loadedCount >= totalAssets) { assetsFinished = true; checkReadyToStart(); } };
+        });
+    }
+
+    // FAILSAFE: 6 seconds max
+    setTimeout(() => {
+        if (!isLoaded) {
+            minTimePassed = true;
+            assetsFinished = true;
+            checkReadyToStart();
+        }
+    }, 6000);
 }
 
-// Upgraded Navigation: Perfectly timed to swap when the wall is fully built
+// --- PAGE TRANSITIONS ---
 window.navigateToPage = function(pageNumber, skipTransition = false) {
     if (skipTransition) {
         executePageSwap(pageNumber);
@@ -191,13 +217,11 @@ window.navigateToPage = function(pageNumber, skipTransition = false) {
     }
     triggerPageTransitionPour();
     
-    // Swap the page invisibly exactly at 1.4 seconds (when the screen is buried in flowers)
     setTimeout(() => {
         executePageSwap(pageNumber);
     }, 1400); 
 };
 
-// The hidden background swap function
 function executePageSwap(pageNumber) {
     const current = $(`#page-${state.currentPage}`);
     const next = $(`#page-${pageNumber}`);
@@ -216,38 +240,28 @@ function executePageSwap(pageNumber) {
         if (pageNumber === 5 && !state.songsPopulated) populateSongs();
         if (pageNumber === 6) initCountdown();
         if (pageNumber === 7 && !state.memoriesPopulated) populateMemories();
-        // Note: Page 8 (Garden) is initialized on DOM load
         if (pageNumber === 9) initFinalMessage();
     }
 }
 
-
-
-
-
-
 // --- PAGE 1: ENVELOPE ---
 function initEnvelope() {
     const envelope = $('.envelope-container');
-    let isOpening = false; // Creates a lock to prevent double-fires
+    let isOpening = false; 
 
     envelope.addEventListener('click', () => {
-        if (isOpening) return; // If it's already clicked, ignore any extra clicks
-        isOpening = true; // Lock it immediately on the first click
+        if (isOpening) return; 
+        isOpening = true; 
         
         if (!state.musicPlaying) toggleMusic(); 
         
         envelope.classList.add('opening');
         triggerEnvelopeEruption(); 
         
-        // Tells the navigation to swap to Page 2, but skip the standard Top Pour
         setTimeout(() => navigateToPage(2, true), 3500); 
     });
 }
 
-
-
-// 1. GENERATES ENVELOPE ERUPTION
 function triggerEnvelopeEruption() {
     const container = document.createElement('div');
     container.classList.add('flower-container');
@@ -257,8 +271,7 @@ function triggerEnvelopeEruption() {
     const screenHeight = window.innerHeight;
     const isMobile = screenWidth <= 768;
 
-    // PERFORMANCE CHECK: Drastically reduce count on phones
-    const flowerCount = isMobile ? 120 : 450; 
+    const flowerCount = isMobile ? 150 : 600; 
     const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
 
     for(let i = 0; i < flowerCount; i++) {
@@ -266,19 +279,19 @@ function triggerEnvelopeEruption() {
         flower.src = flowerImages[Math.floor(Math.random() * flowerImages.length)];
         flower.classList.add('eruption-flower');
 
-        const tx = (Math.random() * screenWidth - (screenWidth / 2)) + 'px';
+        const tx = (Math.random() * (screenWidth + 400) - (screenWidth / 2 + 200)) + 'px';
         const targetYRaw = Math.random() * (screenHeight + 150);
         const ty = (targetYRaw - (screenHeight / 2)) + 'px';
         
         const delayFactor = 1 - (targetYRaw / screenHeight); 
-        const delay = (Math.max(0, delayFactor * 2.0) + Math.random() * 0.2) + 's'; 
+        const delay = (Math.max(0, delayFactor * 1.5) + Math.random() * 0.2) + 's'; 
 
-        // If on mobile, make the flowers larger so they still cover the screen!
-        const s = isMobile ? (Math.random() * 2.2 + 1.2) : (Math.random() * 1.8 + 0.8); 
+        const s = isMobile ? (Math.random() * 0.8 + 0.5) : (Math.random() * 1.0 + 0.5); 
         const r = (Math.random() * 720 - 360) + 'deg'; 
         const duration = (Math.random() * 0.6 + 0.5) + 's'; 
 
-        flower.style.width = '180px'; 
+        flower.style.width = isMobile ? '90px' : '200px'; 
+        
         flower.style.setProperty('--tx', tx);
         flower.style.setProperty('--ty', ty);
         flower.style.setProperty('--s', s);
@@ -295,10 +308,6 @@ function triggerEnvelopeEruption() {
     }, 3200); 
 }
 
-
-
-
-// 2. GENERATES PAGE TRANSITIONS (Pours from ceiling)
 function triggerPageTransitionPour() {
     const container = document.createElement('div');
     container.classList.add('flower-container');
@@ -308,8 +317,7 @@ function triggerPageTransitionPour() {
     const screenHeight = window.innerHeight;
     const isMobile = screenWidth <= 768;
 
-    // PERFORMANCE CHECK: Drastically reduce count on phones
-    const flowerCount = isMobile ? 100 : 400; 
+    const flowerCount = isMobile ? 150 : 600; 
     const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
 
     for(let i = 0; i < flowerCount; i++) {
@@ -317,19 +325,19 @@ function triggerPageTransitionPour() {
         flower.src = flowerImages[Math.floor(Math.random() * flowerImages.length)];
         flower.classList.add('transition-flower');
 
-        const tx = Math.random() * 100 + 'vw';
+        const tx = (Math.random() * (screenWidth + 400) - 200) + 'px';
         const targetYRaw = Math.random() * (screenHeight + 150);
-        const ty = targetYRaw + 250 + 'px'; 
+        const ty = targetYRaw + 250 + 'px';
         
         const delayFactor = 1 - (targetYRaw / screenHeight); 
         const delay = (Math.max(0, delayFactor * 1.0) + Math.random() * 0.15) + 's'; 
 
-        // Make flowers larger on mobile to fill the gaps
-        const s = isMobile ? (Math.random() * 2.5 + 1.2) : (Math.random() * 1.8 + 0.8); 
+        const s = isMobile ? (Math.random() * 0.8 + 0.5) : (Math.random() * 1.0 + 0.5); 
         const r = (Math.random() * 720 - 360) + 'deg'; 
         const duration = (Math.random() * 0.5 + 0.4) + 's'; 
 
-        flower.style.width = '180px'; 
+        flower.style.width = isMobile ? '90px' : '200px'; 
+        
         flower.style.setProperty('--tx', tx);
         flower.style.setProperty('--ty', ty);
         flower.style.setProperty('--s', s);
@@ -345,12 +353,6 @@ function triggerPageTransitionPour() {
         setTimeout(() => { container.remove(); }, 3500);
     }, 1800); 
 }
-
-
-
-
-
-
 
 // --- PAGE 2: LOVE LETTER ---
 function initLoveLetter() {
@@ -383,7 +385,6 @@ function typewriterEffect(element, text) {
     type();
 }
 
-
 // --- PAGE 3: FILM REEL GALLERY ---
 function populateGallery() {
     const scroll = $('#film-scroll');
@@ -393,7 +394,7 @@ function populateGallery() {
         frame.classList.add('film-frame');
         
         const image = document.createElement('img');
-        image.setAttribute('data-src', img.src);
+        image.setAttribute('data-src', img.src); 
         image.alt = img.caption;
         
         image.onerror = function() {
@@ -430,7 +431,6 @@ function closePhotoModal() {
     $('#photo-modal').classList.remove('open');
 }
 
-
 // --- PAGE 4: POLAROID WALL ---
 let highestZ = 10; 
 
@@ -453,7 +453,7 @@ function populatePolaroids() {
         polaroid.innerHTML = `
             <div class="polaroid-inner">
                 <div class="polaroid-front">
-                    <img src="${item.src}" alt="Polaroid" onerror="this.style.display='none'">
+                    <img data-src="${item.src}" alt="Polaroid" onerror="this.style.display='none'">
                 </div>
                 <div class="polaroid-back">
                     ${item.note}
@@ -461,6 +461,9 @@ function populatePolaroids() {
             </div>
         `;
         
+        const imgEl = polaroid.querySelector('img');
+        lazyLoadObserver.observe(imgEl);
+
         wall.appendChild(polaroid);
         makeDraggableAndFlippable(polaroid);
     });
@@ -541,7 +544,6 @@ function makeDraggableAndFlippable(el) {
     }
 }
 
-
 // --- PAGE 5: SONGS ---
 function populateSongs() {
     const grid = $('#songs-grid');
@@ -551,7 +553,7 @@ function populateSongs() {
         card.innerHTML = `
             <div class="vinyl-container">
                 <div class="vinyl-disc"></div>
-                <div class="vinyl-label"><img src="${song.albumArt}" alt="${song.title} Album Art" onerror="this.style.display='none'"></div>
+                <div class="vinyl-label"><img data-src="${song.albumArt}" alt="${song.title} Album Art" onerror="this.style.display='none'"></div>
             </div>
             <div class="song-title">${song.title}</div>
             <div class="song-artist">${song.artist}</div>
@@ -560,11 +562,14 @@ function populateSongs() {
                 <a href="${song.youtubeLink}" target="_blank" rel="noopener" class="btn btn-primary youtube-btn">YouTube</a>
             </div>
         `;
+        
+        const imgEl = card.querySelector('img');
+        lazyLoadObserver.observe(imgEl);
+
         grid.appendChild(card);
     });
     state.songsPopulated = true;
 }
-
 
 // --- PAGE 6: COUNTDOWN ---
 function initCountdown() {
@@ -577,12 +582,10 @@ function updateCountdown() {
     const now = new Date().getTime();
     const anniversary = new Date(CONFIG.anniversaryDate).getTime();
     
-    // Fixed: Calculate days elapsed since the anniversary (now minus anniversary)
     const differenceTogether = now - anniversary;
     const daysTogether = Math.floor(differenceTogether / (1000 * 60 * 60 * 24));
     $('#together-days').innerHTML = daysTogether > 0 ? daysTogether : 0;
 
-    // Calculate countdown to the next upcoming anniversary occurrence
     let nextAnniversary = new Date(CONFIG.anniversaryDate);
     const currentYear = new Date().getFullYear();
     nextAnniversary.setFullYear(currentYear);
@@ -622,7 +625,7 @@ function populateMemories() {
         card.classList.add('memory-card', 'hover-shadow');
         card.innerHTML = `
             <div class="memory-img-frame">
-                <img class="memory-img" src="${mem.src}" alt="${mem.story}" onerror="this.style.display='none'">
+                <img class="memory-img" data-src="${mem.src}" alt="${mem.story}" onerror="this.style.display='none'">
             </div>
             <div class="memory-story">${mem.story}</div>
             <div class="memory-meta">
@@ -630,6 +633,10 @@ function populateMemories() {
                 <span class="memory-date">${mem.date}</span>
             </div>
         `;
+        
+        const imgEl = card.querySelector('img');
+        lazyLoadObserver.observe(imgEl);
+
         slider.appendChild(card);
     });
     state.memoriesPopulated = true;
@@ -672,22 +679,17 @@ function updateSliderPosition() {
     $('#slider-next').style.opacity = state.currentMemory === CONFIG.favoriteMemories.length - 1 ? '0.3' : '1';
 }
 
-
 // --- PAGE 8: FINAL MESSAGE ---
-// --- BULLETPROOF FINAL REVEAL ---
 window.triggerFinalReveal = function() {
     const message = $('.final-message');
     const quote = $('.final-quote');
     const button = $('#final-reveal');
 
-    // Prevent double-clicking
     button.style.pointerEvents = 'none';
 
-    // Fade out the quote and button
     quote.classList.add('fade-out');
     button.classList.add('fade-out');
     
-    // Fade the music volume up slightly for the finale
     const music = $('#bg-music');
     if (state.musicPlaying && music) {
         let volume = music.volume;
@@ -702,7 +704,6 @@ window.triggerFinalReveal = function() {
         }, 100);
     }
 
-    // Wait for the fade out, then swap the text and fire confetti!
     setTimeout(() => {
         button.style.display = 'none';
         quote.style.display = 'none';
@@ -714,11 +715,31 @@ window.triggerFinalReveal = function() {
     }, 800); 
 };
 
+// Final Confetti Generator for the Button
+function triggerConfetti(targetSelector) {
+    const confettiCount = 50;
+    const container = $(targetSelector) || document.body;
+    for (let i = 0; i < confettiCount; i++) {
+        const piece = document.createElement('div');
+        piece.classList.add('confetti');
+        piece.style.position = 'absolute'; 
+        piece.style.width = '10px'; 
+        piece.style.height = '10px';
+        piece.style.left = Math.random() * 100 + 'vw'; 
+        piece.style.top = Math.random() * -10 + 'vh';
+        piece.style.backgroundColor = Math.random() < 0.5 ? 'var(--color-gold)' : 'var(--color-burgundy)';
+        piece.style.animation = `float ${Math.random() * 3 + 2}s ease-out forwards`;
+        container.appendChild(piece);
+        
+        setTimeout(() => piece.remove(), 5000); 
+    }
+}
+
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     initParticles();
     initControls();
-    initLoading();
+    initLoading(); 
     initEnvelope();
     initLoveLetter();
     initSlider();
