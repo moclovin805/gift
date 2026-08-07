@@ -271,7 +271,7 @@ function triggerEnvelopeEruption() {
     const screenHeight = window.innerHeight;
     const isMobile = screenWidth <= 768;
 
-    const flowerCount = isMobile ? 600 : 600; 
+    const flowerCount = isMobile ? 150 : 600; 
     const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
 
     for(let i = 0; i < flowerCount; i++) {
@@ -286,11 +286,11 @@ function triggerEnvelopeEruption() {
         const delayFactor = 1 - (targetYRaw / screenHeight); 
         const delay = (Math.max(0, delayFactor * 1.5) + Math.random() * 0.2) + 's'; 
 
-        const s = isMobile ? (Math.random() * 1.0 + 0.5) : (Math.random() * 1.0 + 0.5); 
+        const s = isMobile ? (Math.random() * 0.8 + 0.5) : (Math.random() * 1.0 + 0.5); 
         const r = (Math.random() * 720 - 360) + 'deg'; 
         const duration = (Math.random() * 0.6 + 0.5) + 's'; 
 
-        flower.style.width = isMobile ? '200px' : '200px'; 
+        flower.style.width = isMobile ? '90px' : '200px'; 
         
         flower.style.setProperty('--tx', tx);
         flower.style.setProperty('--ty', ty);
@@ -317,7 +317,7 @@ function triggerPageTransitionPour() {
     const screenHeight = window.innerHeight;
     const isMobile = screenWidth <= 768;
 
-    const flowerCount = isMobile ? 600 : 600; 
+    const flowerCount = isMobile ? 150 : 600; 
     const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
 
     for(let i = 0; i < flowerCount; i++) {
@@ -332,11 +332,11 @@ function triggerPageTransitionPour() {
         const delayFactor = 1 - (targetYRaw / screenHeight); 
         const delay = (Math.max(0, delayFactor * 1.0) + Math.random() * 0.15) + 's'; 
 
-        const s = isMobile ? (Math.random() * 1.0 + 0.5) : (Math.random() * 1.0 + 0.5); 
+        const s = isMobile ? (Math.random() * 0.8 + 0.5) : (Math.random() * 1.0 + 0.5); 
         const r = (Math.random() * 720 - 360) + 'deg'; 
         const duration = (Math.random() * 0.5 + 0.4) + 's'; 
 
-        flower.style.width = isMobile ? '200px' : '200px'; 
+        flower.style.width = isMobile ? '90px' : '200px'; 
         
         flower.style.setProperty('--tx', tx);
         flower.style.setProperty('--ty', ty);
