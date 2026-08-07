@@ -162,6 +162,7 @@ p, blockquote { font-family: var(--font-body); }
     position: absolute;
     pointer-events: none;
     z-index: -1;
+    will-change: transform;
 }
 
 @keyframes float {

@@ -80,10 +80,14 @@ const lazyLoadObserver = new IntersectionObserver((entries, observer) => {
 }, { rootMargin: '0px 0px 50px 0px' }); 
 
 
+
+
 // --- AMBIENT ELEMENTS (Particles & Effects) ---
 function initParticles() {
     const container = $('#particle-container');
-    const particleCount = 25; 
+    // PERFORMANCE CHECK: Use fewer particles on mobile devices
+    const isMobile = window.innerWidth <= 768;
+    const particleCount = isMobile ? 10 : 25; 
     const particles = [];
 
     for (let i = 0; i < particleCount; i++) {
@@ -103,6 +107,9 @@ function initParticles() {
         particles.push(particle);
     }
 }
+
+
+
 
 
 // --- SITE CONTROLS & UTILS ---
@@ -238,17 +245,21 @@ function initEnvelope() {
     });
 }
 
+
+
 // 1. GENERATES ENVELOPE ERUPTION
 function triggerEnvelopeEruption() {
     const container = document.createElement('div');
     container.classList.add('flower-container');
     document.body.appendChild(container);
 
-    // Optimized count for silky smooth framerates
-    const flowerCount =600; 
-    const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
+    const isMobile = screenWidth <= 768;
+
+    // PERFORMANCE CHECK: Drastically reduce count on phones
+    const flowerCount = isMobile ? 120 : 450; 
+    const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
 
     for(let i = 0; i < flowerCount; i++) {
         const flower = document.createElement('img');
@@ -262,12 +273,12 @@ function triggerEnvelopeEruption() {
         const delayFactor = 1 - (targetYRaw / screenHeight); 
         const delay = (Math.max(0, delayFactor * 2.0) + Math.random() * 0.2) + 's'; 
 
-        const s = Math.random() * 1.5 + 0.6; // Larger flowers for better coverage
+        // If on mobile, make the flowers larger so they still cover the screen!
+        const s = isMobile ? (Math.random() * 2.2 + 1.2) : (Math.random() * 1.8 + 0.8); 
         const r = (Math.random() * 720 - 360) + 'deg'; 
         const duration = (Math.random() * 0.6 + 0.5) + 's'; 
 
-        flower.style.width = '150px'; // Larger base width
-        
+        flower.style.width = '180px'; 
         flower.style.setProperty('--tx', tx);
         flower.style.setProperty('--ty', ty);
         flower.style.setProperty('--s', s);
@@ -280,9 +291,10 @@ function triggerEnvelopeEruption() {
 
     setTimeout(() => {
         container.classList.add('drop-away');
-        setTimeout(() => { container.remove(); }, 2500);
-    }, 3200); // Tighter drop timing
+        setTimeout(() => { container.remove(); }, 3500);
+    }, 3200); 
 }
+
 
 
 
@@ -292,9 +304,13 @@ function triggerPageTransitionPour() {
     container.classList.add('flower-container');
     document.body.appendChild(container);
 
-    const flowerCount = 400; // Optimized count
-    const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
+    const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
+    const isMobile = screenWidth <= 768;
+
+    // PERFORMANCE CHECK: Drastically reduce count on phones
+    const flowerCount = isMobile ? 100 : 400; 
+    const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
 
     for(let i = 0; i < flowerCount; i++) {
         const flower = document.createElement('img');
@@ -308,12 +324,12 @@ function triggerPageTransitionPour() {
         const delayFactor = 1 - (targetYRaw / screenHeight); 
         const delay = (Math.max(0, delayFactor * 1.0) + Math.random() * 0.15) + 's'; 
 
-        const s = Math.random() * 1.8 + 0.8; 
+        // Make flowers larger on mobile to fill the gaps
+        const s = isMobile ? (Math.random() * 2.5 + 1.2) : (Math.random() * 1.8 + 0.8); 
         const r = (Math.random() * 720 - 360) + 'deg'; 
         const duration = (Math.random() * 0.5 + 0.4) + 's'; 
 
         flower.style.width = '180px'; 
-        
         flower.style.setProperty('--tx', tx);
         flower.style.setProperty('--ty', ty);
         flower.style.setProperty('--s', s);
@@ -324,7 +340,6 @@ function triggerPageTransitionPour() {
         container.appendChild(flower);
     }
 
-    // Drops the wall perfectly in sync with the new page being ready
     setTimeout(() => {
         container.classList.add('drop-away');
         setTimeout(() => { container.remove(); }, 3500);
