@@ -283,8 +283,7 @@ function triggerEnvelopeEruption() {
     const screenHeight = window.innerHeight;
     const isMobile = screenWidth <= 768;
 
-    // High count for a dense, opaque wall
-    const flowerCount = isMobile ? 600 : 800; 
+    const flowerCount = isMobile ? 250 : 600; 
     const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
 
     for(let i = 0; i < flowerCount; i++) {
@@ -299,13 +298,11 @@ function triggerEnvelopeEruption() {
         const delayFactor = 1 - (targetYRaw / screenHeight); 
         const delay = (Math.max(0, delayFactor * 1.5) + Math.random() * 0.2) + 's'; 
 
-        // Tighter scaling so they stay uniform and pack together tightly
-        const s = Math.random() * 0.5 + 0.8; 
+        const s = Math.random() * 0.6 + 0.8; 
         const r = (Math.random() * 720 - 360) + 'deg'; 
         const duration = (Math.random() * 0.6 + 0.5) + 's'; 
 
-        // 75px for mobile ensures tight packing without giant overlapping images
-        flower.style.width = isMobile ? '75px' : '150px'; 
+        flower.style.width = isMobile ? '100px' : '150px'; 
         
         flower.style.setProperty('--tx', tx);
         flower.style.setProperty('--ty', ty);
@@ -336,8 +333,7 @@ function triggerPageTransitionPour() {
     const screenHeight = window.innerHeight;
     const isMobile = screenWidth <= 768;
 
-    // High count for a dense, opaque wall
-    const flowerCount = isMobile ? 700 : 800; 
+    const flowerCount = isMobile ? 350 : 600; 
     const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
 
     for(let i = 0; i < flowerCount; i++) {
@@ -346,19 +342,21 @@ function triggerPageTransitionPour() {
         flower.classList.add('transition-flower');
 
         const tx = (Math.random() * (screenWidth + 400) - 200) + 'px';
-        const targetYRaw = Math.random() * (screenHeight + 150);
+        const targetYRaw = Math.random() * (screenHeight + 200);
         const ty = targetYRaw + 250 + 'px';
         
+        // Compressed delay so the flowers flood the screen simultaneously
         const delayFactor = 1 - (targetYRaw / screenHeight); 
-        const delay = (Math.max(0, delayFactor * 1.0) + Math.random() * 0.15) + 's'; 
+        const delay = (Math.max(0, delayFactor * 0.4) + Math.random() * 0.2) + 's'; 
 
-        // Tighter scaling so they stay uniform and pack together tightly
-        const s = Math.random() * 0.5 + 0.8; 
+        const s = Math.random() * 0.6 + 0.8; 
         const r = (Math.random() * 720 - 360) + 'deg'; 
-        const duration = (Math.random() * 0.5 + 0.4) + 's'; 
+        
+        // Slightly longer duration so they hang in the air during the page swap
+        const duration = (Math.random() * 0.6 + 0.7) + 's'; 
 
-        // 75px for mobile ensures tight packing without giant overlapping images
-        flower.style.width = isMobile ? '75px' : '150px'; 
+        // Increased size to guarantee overlap and eliminate gaps
+        flower.style.width = isMobile ? '110px' : '160px'; 
         
         flower.style.setProperty('--tx', tx);
         flower.style.setProperty('--ty', ty);
