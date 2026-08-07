@@ -4,7 +4,7 @@ const CONFIG = {
     girlfriendName: 'jana', // Change this to her name
     yourName: 'Manik',
     // format: YYYY-MM-DD
-    anniversaryDate: '2025-7-7',
+    anniversaryDate: '2025-7-17',
     // URL to MP3 file (GitHub link, Dropbox public link, etc.)
     musicLink: 'assets/music/bgmusic.mp3',
 
