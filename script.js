@@ -75,6 +75,9 @@ function initParticles() {
     const container = $('#particle-container');
     const isMobile = window.innerWidth <= 768;
     const particleCount = isMobile ? 10 : 25; 
+    
+    // PERFORMANCE: Use DocumentFragment to batch DOM insertions
+    const fragment = document.createDocumentFragment();
 
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
@@ -89,8 +92,9 @@ function initParticles() {
         particle.style.animation = `float ${Math.random() * (10 - 5) + 5}s linear infinite`;
         particle.style.animationDelay = `-${Math.random() * 10}s`;
 
-        container.appendChild(particle);
+        fragment.appendChild(particle);
     }
+    container.appendChild(fragment);
 }
 
 // --- SITE CONTROLS & UTILS ---
@@ -107,14 +111,26 @@ function initControls() {
     music.src = CONFIG.musicLink;
     $('#music-toggle').addEventListener('click', toggleMusic);
 
-    window.addEventListener('scroll', updateScrollProgress);
-
     const bttButton = $('#back-to-top');
     bttButton.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // PERFORMANCE: Throttle scroll events using requestAnimationFrame to prevent mobile jank
+    let isScrolling = false;
     window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) bttButton.classList.add('show');
-        else bttButton.classList.remove('show');
-    });
+        if (!isScrolling) {
+            window.requestAnimationFrame(() => {
+                updateScrollProgress();
+                
+                if (window.scrollY > 300) {
+                    bttButton.classList.add('show');
+                } else {
+                    bttButton.classList.remove('show');
+                }
+                isScrolling = false;
+            });
+            isScrolling = true;
+        }
+    }, { passive: true }); // Tells browser scroll won't be interrupted
 }
 
 function toggleMusic() {
@@ -145,7 +161,6 @@ function updateScrollProgress() {
 
 // --- HYBRID PRELOADER WITH TIME LOCK ---
 function initLoading() {
-    // Preload UI assets only
     let assetsToLoad = [
         'assets/images/my-envelope.jpeg',
         'assets/images/flower1.png',
@@ -180,13 +195,11 @@ function initLoading() {
         }
     }
 
-    // LOCK 1: Force loading screen to stay for 2.5s
     setTimeout(() => {
         minTimePassed = true;
         checkReadyToStart();
     }, 2500);
 
-    // LOCK 2: Ensure images are loaded
     if (totalAssets === 0) {
         assetsFinished = true;
         checkReadyToStart();
@@ -199,7 +212,6 @@ function initLoading() {
         });
     }
 
-    // FAILSAFE: 6 seconds max
     setTimeout(() => {
         if (!isLoaded) {
             minTimePassed = true;
@@ -267,6 +279,9 @@ function triggerEnvelopeEruption() {
     container.classList.add('flower-container');
     document.body.appendChild(container);
 
+    // PERFORMANCE: Use DocumentFragment
+    const fragment = document.createDocumentFragment();
+
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
     const isMobile = screenWidth <= 768;
@@ -299,8 +314,11 @@ function triggerEnvelopeEruption() {
         flower.style.setProperty('--duration', duration);
         flower.style.setProperty('--delay', delay);
 
-        container.appendChild(flower);
+        fragment.appendChild(flower);
     }
+    
+    // Inject all flowers at once to prevent layout thrashing
+    container.appendChild(fragment);
 
     setTimeout(() => {
         container.classList.add('drop-away');
@@ -312,6 +330,9 @@ function triggerPageTransitionPour() {
     const container = document.createElement('div');
     container.classList.add('flower-container');
     document.body.appendChild(container);
+
+    // PERFORMANCE: Use DocumentFragment
+    const fragment = document.createDocumentFragment();
 
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
@@ -345,8 +366,10 @@ function triggerPageTransitionPour() {
         flower.style.setProperty('--duration', duration);
         flower.style.setProperty('--delay', delay);
 
-        container.appendChild(flower);
+        fragment.appendChild(flower);
     }
+
+    container.appendChild(fragment);
 
     setTimeout(() => {
         container.classList.add('drop-away');
@@ -388,6 +411,7 @@ function typewriterEffect(element, text) {
 // --- PAGE 3: FILM REEL GALLERY ---
 function populateGallery() {
     const scroll = $('#film-scroll');
+    const fragment = document.createDocumentFragment();
     
     CONFIG.galleryImages.forEach((img) => {
         const frame = document.createElement('div');
@@ -405,9 +429,10 @@ function populateGallery() {
         
         frame.appendChild(image);
         frame.addEventListener('click', () => openPhotoModal(img));
-        scroll.appendChild(frame);
+        fragment.appendChild(frame);
     });
 
+    scroll.appendChild(fragment);
     state.galleryPopulated = true;
 }
 
@@ -436,14 +461,18 @@ let highestZ = 10;
 
 function populatePolaroids() {
     const wall = $('#polaroid-wall');
-    const wallRect = wall.getBoundingClientRect();
+    const fragment = document.createDocumentFragment();
+    
+    // Fallback bounds in case elements aren't fully painted yet
+    let wallWidth = wall.offsetWidth || window.innerWidth;
+    let wallHeight = wall.offsetHeight || window.innerHeight;
     
     CONFIG.polaroids.forEach((item, index) => {
         const polaroid = document.createElement('div');
         polaroid.classList.add('polaroid');
         
-        const randomX = Math.random() * (wallRect.width - 200);
-        const randomY = Math.random() * (wallRect.height - 240);
+        const randomX = Math.random() * (wallWidth - 200);
+        const randomY = Math.random() * (wallHeight - 240);
         const randomRotate = (Math.random() - 0.5) * 40; 
         
         polaroid.style.left = `${Math.max(20, randomX)}px`;
@@ -464,10 +493,11 @@ function populatePolaroids() {
         const imgEl = polaroid.querySelector('img');
         lazyLoadObserver.observe(imgEl);
 
-        wall.appendChild(polaroid);
+        fragment.appendChild(polaroid);
         makeDraggableAndFlippable(polaroid);
     });
 
+    wall.appendChild(fragment);
     state.polaroidsPopulated = true;
 }
 
@@ -476,8 +506,9 @@ function makeDraggableAndFlippable(el) {
     let startX, startY, initialX, initialY;
     let wasDragged = false;
     
+    // PERFORMANCE: Passive true for listeners that don't need to block scrolling
     el.addEventListener('mousedown', dragStart);
-    el.addEventListener('touchstart', dragStart, {passive: false});
+    el.addEventListener('touchstart', dragStart, {passive: false}); // Kept false as we might need preventDefault during drag
     
     function dragStart(e) {
         if (e.target.closest('button')) return; 
@@ -507,7 +538,7 @@ function makeDraggableAndFlippable(el) {
     
     function drag(e) {
         if (!isDragging) return;
-        e.preventDefault(); 
+        e.preventDefault(); // Prevents screen scroll while dragging a photo
         
         let currentX, currentY;
         if (e.type === 'touchmove') {
@@ -547,6 +578,8 @@ function makeDraggableAndFlippable(el) {
 // --- PAGE 5: SONGS ---
 function populateSongs() {
     const grid = $('#songs-grid');
+    const fragment = document.createDocumentFragment();
+    
     CONFIG.songs.forEach(song => {
         const card = document.createElement('div');
         card.classList.add('song-card', 'hover-shadow');
@@ -566,8 +599,9 @@ function populateSongs() {
         const imgEl = card.querySelector('img');
         lazyLoadObserver.observe(imgEl);
 
-        grid.appendChild(card);
+        fragment.appendChild(card);
     });
+    grid.appendChild(fragment);
     state.songsPopulated = true;
 }
 
@@ -620,6 +654,8 @@ function formatTime(time) { return time < 10 ? `0${time}` : time; }
 // --- PAGE 7: MEMORIES ---
 function populateMemories() {
     const slider = $('#memories-slider');
+    const fragment = document.createDocumentFragment();
+    
     CONFIG.favoriteMemories.forEach(mem => {
         const card = document.createElement('div');
         card.classList.add('memory-card', 'hover-shadow');
@@ -637,8 +673,10 @@ function populateMemories() {
         const imgEl = card.querySelector('img');
         lazyLoadObserver.observe(imgEl);
 
-        slider.appendChild(card);
+        fragment.appendChild(card);
     });
+    
+    slider.appendChild(fragment);
     state.memoriesPopulated = true;
     updateSliderPosition();
 }
@@ -659,8 +697,10 @@ function initSlider() {
 
     const slider = $('#memories-slider');
     let startX, moveX;
-    slider.addEventListener('touchstart', (e) => startX = e.touches[0].clientX);
-    slider.addEventListener('touchmove', (e) => moveX = e.touches[0].clientX);
+    
+    // PERFORMANCE: Passive listeners for slider touches so the page doesn't stutter 
+    slider.addEventListener('touchstart', (e) => startX = e.touches[0].clientX, { passive: true });
+    slider.addEventListener('touchmove', (e) => moveX = e.touches[0].clientX, { passive: true });
     slider.addEventListener('touchend', () => {
         if (startX - moveX > 50 && state.currentMemory < CONFIG.favoriteMemories.length - 1) { 
             state.currentMemory++;
@@ -715,10 +755,13 @@ window.triggerFinalReveal = function() {
     }, 800); 
 };
 
-// Final Confetti Generator for the Button
 function triggerConfetti(targetSelector) {
     const confettiCount = 50;
     const container = $(targetSelector) || document.body;
+    
+    // PERFORMANCE: Use DocumentFragment
+    const fragment = document.createDocumentFragment();
+    
     for (let i = 0; i < confettiCount; i++) {
         const piece = document.createElement('div');
         piece.classList.add('confetti');
@@ -729,10 +772,11 @@ function triggerConfetti(targetSelector) {
         piece.style.top = Math.random() * -10 + 'vh';
         piece.style.backgroundColor = Math.random() < 0.5 ? 'var(--color-gold)' : 'var(--color-burgundy)';
         piece.style.animation = `float ${Math.random() * 3 + 2}s ease-out forwards`;
-        container.appendChild(piece);
+        fragment.appendChild(piece);
         
         setTimeout(() => piece.remove(), 5000); 
     }
+    container.appendChild(fragment);
 }
 
 // --- INITIALIZATION ---
