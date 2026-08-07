@@ -284,7 +284,7 @@ function triggerEnvelopeEruption() {
     const isMobile = screenWidth <= 768;
 
     // High count for a dense, opaque wall
-    const flowerCount = isMobile ? 200 : 600; 
+    const flowerCount = isMobile ? 400 : 800; 
     const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
 
     for(let i = 0; i < flowerCount; i++) {
@@ -337,7 +337,7 @@ function triggerPageTransitionPour() {
     const isMobile = screenWidth <= 768;
 
     // High count for a dense, opaque wall
-    const flowerCount = isMobile ? 200 : 600; 
+    const flowerCount = isMobile ? 400 : 800; 
     const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
 
     for(let i = 0; i < flowerCount; i++) {
