@@ -616,6 +616,62 @@ body.dark-mode #together-days {
 .final-message.hidden { opacity: 0; transform: translateY(20px); visibility: hidden; display: none;}
 .final-message.reveal { opacity: 1; transform: translateY(0); visibility: visible; display: block;}
 
+
+/* --- UNIVERSAL FLOWER DROP CONTAINER --- */
+.flower-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+    /* Keeps the slow, graceful drop to reveal the next page */
+    transition: transform 2.5s cubic-bezier(0.55, 0.085, 0.68, 0.53); 
+}
+
+.flower-container.drop-away {
+    transform: translateY(150vh); 
+}
+
+
+/* --- 1. ENVELOPE ERUPTION (Center Spawn) --- */
+.eruption-flower {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    opacity: 0; 
+    transform: translate(-50%, -50%) scale(0.1);
+    /* Tells the GPU to handle this animation for zero lag */
+    will-change: transform; 
+    animation: eruptAnim var(--duration) ease-out forwards;
+    animation-delay: var(--delay);
+}
+
+@keyframes eruptAnim {
+    0% { transform: translate(-50%, -50%) scale(0.1) rotate(0deg); opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(var(--s)) rotate(var(--r)); opacity: 1; }
+}
+
+/* --- 2. PAGE TRANSITIONS (Top Pour) --- */
+.transition-flower {
+    position: absolute;
+    top: -300px; 
+    left: var(--tx); 
+    opacity: 0; 
+    transform: translateY(0) rotate(0deg) scale(var(--s));
+    will-change: transform; 
+    /* Changed to ease-in-out for a softer landing when they hit the wall */
+    animation: transitionPourAnim var(--duration) ease-in-out forwards;
+    animation-delay: var(--delay);
+}
+
+@keyframes transitionPourAnim {
+    0% { transform: translateY(0) rotate(0deg) scale(var(--s)); opacity: 1; }
+    100% { transform: translateY(var(--ty)) rotate(var(--r)) scale(var(--s)); opacity: 1; }
+}
+
+
 /* --- RESPONSIVENESS (MOBILE-FIRST) --- */
 
 @media screen and (max-width: 600px) {

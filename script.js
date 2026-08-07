@@ -156,6 +156,9 @@ function updateScrollProgress() {
 }
 
 
+
+
+
 // --- LOADING & PAGE TRANSITIONS ---
 function initLoading() {
     const loadingScreen = $('#loading-screen');
@@ -173,42 +176,165 @@ function initLoading() {
     }, 2000); 
 }
 
-window.navigateToPage = function(pageNumber) {
+// Upgraded Navigation: Perfectly timed to swap when the wall is fully built
+window.navigateToPage = function(pageNumber, skipTransition = false) {
+    if (skipTransition) {
+        executePageSwap(pageNumber);
+        return;
+    }
+    triggerPageTransitionPour();
+    
+    // Swap the page invisibly exactly at 1.4 seconds (when the screen is buried in flowers)
+    setTimeout(() => {
+        executePageSwap(pageNumber);
+    }, 1400); 
+};
+
+// The hidden background swap function
+function executePageSwap(pageNumber) {
     const current = $(`#page-${state.currentPage}`);
     const next = $(`#page-${pageNumber}`);
 
     if (current && next) {
-        current.classList.add('fade-out');
-        setTimeout(() => {
-            current.classList.remove('active');
-            current.style.display = 'none'; 
+        current.classList.remove('active', 'fade-out');
+        current.style.display = 'none'; 
 
-            next.classList.add('active', 'fade-in');
-            next.style.display = 'flex'; 
-            state.currentPage = pageNumber;
-            window.scrollTo(0, 0); 
+        next.classList.add('active', 'fade-in');
+        next.style.display = 'flex'; 
+        state.currentPage = pageNumber;
+        window.scrollTo(0, 0); 
 
-            if (pageNumber === 3 && !state.galleryPopulated) populateGallery();
-            if (pageNumber === 4 && !state.polaroidsPopulated) populatePolaroids();
-            if (pageNumber === 5 && !state.songsPopulated) populateSongs();
-            if (pageNumber === 6) initCountdown();
-            if (pageNumber === 7 && !state.memoriesPopulated) populateMemories();
-            if (pageNumber === 8) initFinalMessage();
-
-        }, 800); 
+        if (pageNumber === 3 && !state.galleryPopulated) populateGallery();
+        if (pageNumber === 4 && !state.polaroidsPopulated) populatePolaroids();
+        if (pageNumber === 5 && !state.songsPopulated) populateSongs();
+        if (pageNumber === 6) initCountdown();
+        if (pageNumber === 7 && !state.memoriesPopulated) populateMemories();
+        // Note: Page 8 (Garden) is initialized on DOM load
+        if (pageNumber === 9) initFinalMessage();
     }
-};
+}
+
+
+
+
 
 
 // --- PAGE 1: ENVELOPE ---
 function initEnvelope() {
     const envelope = $('.envelope-container');
+    let isOpening = false; // Creates a lock to prevent double-fires
+
     envelope.addEventListener('click', () => {
+        if (isOpening) return; // If it's already clicked, ignore any extra clicks
+        isOpening = true; // Lock it immediately on the first click
+        
         if (!state.musicPlaying) toggleMusic(); 
+        
         envelope.classList.add('opening');
-        setTimeout(() => navigateToPage(2), 1500); 
+        triggerEnvelopeEruption(); 
+        
+        // Tells the navigation to swap to Page 2, but skip the standard Top Pour
+        setTimeout(() => navigateToPage(2, true), 3500); 
     });
 }
+
+// 1. GENERATES ENVELOPE ERUPTION
+function triggerEnvelopeEruption() {
+    const container = document.createElement('div');
+    container.classList.add('flower-container');
+    document.body.appendChild(container);
+
+    // Optimized count for silky smooth framerates
+    const flowerCount =600; 
+    const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    for(let i = 0; i < flowerCount; i++) {
+        const flower = document.createElement('img');
+        flower.src = flowerImages[Math.floor(Math.random() * flowerImages.length)];
+        flower.classList.add('eruption-flower');
+
+        const tx = (Math.random() * screenWidth - (screenWidth / 2)) + 'px';
+        const targetYRaw = Math.random() * (screenHeight + 150);
+        const ty = (targetYRaw - (screenHeight / 2)) + 'px';
+        
+        const delayFactor = 1 - (targetYRaw / screenHeight); 
+        const delay = (Math.max(0, delayFactor * 2.0) + Math.random() * 0.2) + 's'; 
+
+        const s = Math.random() * 1.5 + 0.6; // Larger flowers for better coverage
+        const r = (Math.random() * 720 - 360) + 'deg'; 
+        const duration = (Math.random() * 0.6 + 0.5) + 's'; 
+
+        flower.style.width = '150px'; // Larger base width
+        
+        flower.style.setProperty('--tx', tx);
+        flower.style.setProperty('--ty', ty);
+        flower.style.setProperty('--s', s);
+        flower.style.setProperty('--r', r);
+        flower.style.setProperty('--duration', duration);
+        flower.style.setProperty('--delay', delay);
+
+        container.appendChild(flower);
+    }
+
+    setTimeout(() => {
+        container.classList.add('drop-away');
+        setTimeout(() => { container.remove(); }, 2500);
+    }, 3200); // Tighter drop timing
+}
+
+
+
+// 2. GENERATES PAGE TRANSITIONS (Pours from ceiling)
+function triggerPageTransitionPour() {
+    const container = document.createElement('div');
+    container.classList.add('flower-container');
+    document.body.appendChild(container);
+
+    const flowerCount = 400; // Optimized count
+    const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
+    const screenHeight = window.innerHeight;
+
+    for(let i = 0; i < flowerCount; i++) {
+        const flower = document.createElement('img');
+        flower.src = flowerImages[Math.floor(Math.random() * flowerImages.length)];
+        flower.classList.add('transition-flower');
+
+        const tx = Math.random() * 100 + 'vw';
+        const targetYRaw = Math.random() * (screenHeight + 150);
+        const ty = targetYRaw + 250 + 'px'; 
+        
+        const delayFactor = 1 - (targetYRaw / screenHeight); 
+        const delay = (Math.max(0, delayFactor * 1.0) + Math.random() * 0.15) + 's'; 
+
+        const s = Math.random() * 1.8 + 0.8; 
+        const r = (Math.random() * 720 - 360) + 'deg'; 
+        const duration = (Math.random() * 0.5 + 0.4) + 's'; 
+
+        flower.style.width = '180px'; 
+        
+        flower.style.setProperty('--tx', tx);
+        flower.style.setProperty('--ty', ty);
+        flower.style.setProperty('--s', s);
+        flower.style.setProperty('--r', r);
+        flower.style.setProperty('--duration', duration);
+        flower.style.setProperty('--delay', delay);
+
+        container.appendChild(flower);
+    }
+
+    // Drops the wall perfectly in sync with the new page being ready
+    setTimeout(() => {
+        container.classList.add('drop-away');
+        setTimeout(() => { container.remove(); }, 3500);
+    }, 1800); 
+}
+
+
+
+
+
 
 
 // --- PAGE 2: LOVE LETTER ---
@@ -533,64 +659,45 @@ function updateSliderPosition() {
 
 
 // --- PAGE 8: FINAL MESSAGE ---
-function initFinalMessage() {
-    $('.final-quote').innerHTML = CONFIG.finalQuote;
-    $('.final-message').innerHTML = CONFIG.finalMessageReveal;
+// --- BULLETPROOF FINAL REVEAL ---
+window.triggerFinalReveal = function() {
+    const message = $('.final-message');
+    const quote = $('.final-quote');
+    const button = $('#final-reveal');
 
-    $('#final-reveal').addEventListener('click', () => {
-        const message = $('.final-message');
-        const quote = $('.final-quote');
-        const button = $('#final-reveal');
+    // Prevent double-clicking
+    button.style.pointerEvents = 'none';
 
-        button.style.pointerEvents = 'none';
-
-        quote.classList.add('fade-out');
-        button.classList.add('fade-out');
-        
-        const music = $('#bg-music');
-        if (state.musicPlaying) {
-            let volume = music.volume;
-            const targetVolume = Math.min(1.0, volume + 0.2);
-            const fade = setInterval(() => {
-                if (volume < targetVolume) {
-                    volume += 0.05;
-                    music.volume = Math.min(1.0, volume);
-                } else {
-                    clearInterval(fade);
-                }
-            }, 100);
-        }
-
-        setTimeout(() => {
-            button.style.display = 'none';
-            quote.style.display = 'none';
-            
-            message.classList.add('reveal');
-            message.classList.remove('hidden');
-            
-            triggerConfetti(); 
-        }, 800); 
-    });
-}
-
-function triggerConfetti() {
-    const confettiCount = 50;
-    const container = $('#page-8');
-    for (let i = 0; i < confettiCount; i++) {
-        const piece = document.createElement('div');
-        piece.classList.add('confetti');
-        piece.style.position = 'absolute';
-        piece.style.width = '10px';
-        piece.style.height = '10px';
-        piece.style.left = Math.random() * 100 + 'vw';
-        piece.style.top = Math.random() * -10 + 'vh';
-        piece.style.backgroundColor = Math.random() < 0.5 ? 'var(--color-gold)' : 'var(--color-burgundy)';
-        piece.style.animation = `float ${Math.random() * 3 + 2}s ease-out forwards`;
-        container.appendChild(piece);
-        setTimeout(() => piece.remove(), 5000); 
+    // Fade out the quote and button
+    quote.classList.add('fade-out');
+    button.classList.add('fade-out');
+    
+    // Fade the music volume up slightly for the finale
+    const music = $('#bg-music');
+    if (state.musicPlaying && music) {
+        let volume = music.volume;
+        const targetVolume = Math.min(1.0, volume + 0.2);
+        const fade = setInterval(() => {
+            if (volume < targetVolume) {
+                volume += 0.05;
+                music.volume = Math.min(1.0, volume);
+            } else {
+                clearInterval(fade);
+            }
+        }, 100);
     }
-}
 
+    // Wait for the fade out, then swap the text and fire confetti!
+    setTimeout(() => {
+        button.style.display = 'none';
+        quote.style.display = 'none';
+        
+        message.classList.remove('hidden');
+        message.classList.add('reveal');
+        
+        triggerConfetti('#page-9'); 
+    }, 800); 
+};
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
