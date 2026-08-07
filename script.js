@@ -283,7 +283,7 @@ function triggerEnvelopeEruption() {
     const screenHeight = window.innerHeight;
     const isMobile = screenWidth <= 768;
 
-    const flowerCount = isMobile ? 250 : 600; 
+    const flowerCount = isMobile ? 450 : 600; 
     const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
 
     for(let i = 0; i < flowerCount; i++) {
@@ -333,7 +333,7 @@ function triggerPageTransitionPour() {
     const screenHeight = window.innerHeight;
     const isMobile = screenWidth <= 768;
 
-    const flowerCount = isMobile ? 350 : 600; 
+    const flowerCount = isMobile ? 450 : 600; 
     const flowerImages = ['assets/images/flower1.png', 'assets/images/flower2.png', 'assets/images/flower3.png'];
 
     for(let i = 0; i < flowerCount; i++) {
